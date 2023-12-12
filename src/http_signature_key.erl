@@ -121,16 +121,22 @@ fingerprint(#{ '__struct__' := ?MODULE, key := Key, module := Module, public := 
 		false ->
 			case DigestTypes of
 				[] ->
-					FingerprintString = public_key:ssh_hostkey_fingerprint(Key),
+					FingerprintString = hostkey_fingerprint(Key),
 					erlang:iolist_to_binary(FingerprintString);
 				_ ->
-					FingerprintStrings = public_key:ssh_hostkey_fingerprint(DigestTypes, Key),
+					FingerprintStrings = hostkey_fingerprint(DigestTypes, Key),
 					[erlang:iolist_to_binary(FingerprintString) || FingerprintString <- FingerprintStrings]
 			end
 	end;
 fingerprint(Key=#{ '__struct__' := ?MODULE, public := false }, DigestTypes) ->
 	PublicKey = to_public(Key),
 	fingerprint(PublicKey, DigestTypes).
+
+hostkey_fingerprint(Key) ->
+			ssh:hostkey_fingerprint(Key).
+
+hostkey_fingerprint(Digest, Key) ->
+			ssh:hostkey_fingerprint(Digest, Key).
 
 generate_key(#{ '__struct__' := ?MODULE, key := Key, module := Module, public := Public, shared := Shared })
 		when (Public == true andalso Shared == false) orelse (Public == false andalso Shared == true) ->
